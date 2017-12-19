@@ -36,6 +36,7 @@ namespace Conveyor
         struct LastElementType<0, TupleType, FirstArgument>
         {
             using element_type = typename std::tuple_element<0, TupleType>::type;
+
             using type = typename std::result_of<
                 decltype(&element_type::execute)(element_type, FirstArgument)
             >::type;
@@ -60,7 +61,7 @@ namespace Conveyor
             std::tuple_size<ActionsTuple>::value - 1,
             ActionsTuple,
             FirstArg
-        >::type execute(FirstArg argument)
+        >::type execute(const FirstArg& argument)
         {
             return exec<FirstArg>(m_actions, argument);
         }
@@ -81,7 +82,7 @@ namespace Conveyor
                 std::tuple_size<ActionsTuple>::value - 1,
                 ActionsTuple,
                 FirstArgument
-            >::type operator() (ActionsTuple& t, PreviousArgument arg)
+            >::type operator() (ActionsTuple& t, const PreviousArgument& arg)
             {
                 return exec_tuple<
                     Index + 1,
@@ -107,7 +108,7 @@ namespace Conveyor
                 std::tuple_size<ActionsTuple>::value - 1,
                 ActionsTuple,
                 FirstArgument
-            >::type  operator()(ActionsTuple& t, PreviousArgument arg)
+            >::type  operator()(ActionsTuple& t, const PreviousArgument& arg)
             {
                 return std::get<std::tuple_size<ActionsTuple>::value - 1>(t).execute(arg);
             }
@@ -118,7 +119,7 @@ namespace Conveyor
             std::tuple_size<ActionsTuple>::value - 1,
             ActionsTuple,
             FirstArgument
-        >::type exec(ActionsTuple& a, FirstArgument& argument)
+        >::type exec(ActionsTuple& a, const FirstArgument& argument)
         {
             return exec_tuple<0, FirstArgument, FirstArgument>{}(a, argument);
         }

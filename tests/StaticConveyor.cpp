@@ -24,3 +24,17 @@ TEST(StaticConveyor, MainFunctional)
 
     ASSERT_EQ(belt.execute(12), 5 * 5 + 12);
 }
+
+//TEST(StaticConveyor, EmbeddedBelt)
+//{
+//    Conveyor::StaticBelt<
+//        Conveyor::StaticBelt<
+//            SomeAction1,
+//            SomeAction1
+//        >
+//    > belt;
+//
+//    belt.execute(12);
+//
+//    ASSERT_EQ(belt.execute(12), 5 * 5 + 12);
+//}

@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.8)
 project(Conveyor)
 
 option(CONVEYOR_BUILD_TESTS "Build tests" On)
+option(CONVEYOR_BUILD_BENCHMARK "Build benchmarks" On)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -9,6 +10,10 @@ include_directories(include)
 
 if (${CONVEYOR_BUILD_TESTS})
     add_subdirectory(tests)
+endif()
+
+if (${CONVEYOR_BUILD_BENCHMARK})
+    add_subdirectory(benchmark)
 endif()
 
 add_library(Conveyor STATIC
@@ -19,4 +24,4 @@ add_library(Conveyor STATIC
 
     src/Conveyor/Belt.cpp
     src/Conveyor/FuncOperator.cpp
-        )
+)
