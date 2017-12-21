@@ -56,6 +56,18 @@ namespace Conveyor
 
     public:
 
+        template<typename... ConstructorArgs>
+        StaticBelt(ConstructorArgs&&... args) :
+            m_actions(std::make_tuple(args...))
+        {
+
+        }
+
+        StaticBelt<>()
+        {
+
+        }
+
         template<typename FirstArg>
         typename LastElementType<
             std::tuple_size<ActionsTuple>::value - 1,

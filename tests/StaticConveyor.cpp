@@ -63,3 +63,76 @@ TEST(StaticConveyor, ElementAccess)
 
     ASSERT_EQ(secondResult, "10");
 }
+
+class Arg1
+{
+public:
+    Arg1() :
+        value(0)
+    {}
+
+    explicit Arg1(int v) :
+        value(v)
+    {}
+
+    int value;
+};
+
+class Arg2
+{
+public:
+    Arg2() :
+        value(0)
+    {}
+
+    explicit Arg2(int v) :
+        value(v)
+    {}
+
+    int value;
+};
+
+class Arg3
+{
+public:
+    Arg3() :
+        value1(0),
+        value2(0)
+    {}
+
+    Arg3(int v, char b) :
+        value1(v),
+        value2(b)
+    {}
+
+    int value1;
+    char value2;
+};
+
+TEST(StaticConveyor, DefaultConstructors)
+{
+    Conveyor::StaticBelt<
+        Arg1,
+        Arg2,
+        Arg3
+    > defaultBelt;
+
+    ASSERT_EQ(defaultBelt.at<0>().value, 0);
+    ASSERT_EQ(defaultBelt.at<1>().value, 0);
+    ASSERT_EQ(defaultBelt.at<2>().value1, 0);
+    ASSERT_EQ(defaultBelt.at<2>().value2, 0);
+}
+
+TEST(StaticConveyor, InitConstructors)
+{
+    Conveyor::StaticBelt<
+        Arg1,
+        Arg2,
+        Arg3
+    > defaultBelt(1, 2, Arg3(3, 4));
+
+    ASSERT_EQ(defaultBelt.at<0>().value, 1);
+    ASSERT_EQ(defaultBelt.at<1>().value, 2);
+    ASSERT_EQ(defaultBelt.at<2>().value1, 3);
+    ASSERT_EQ(defaultBelt.at<2>().value2, 4);
+}
