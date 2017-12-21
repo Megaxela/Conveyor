@@ -71,6 +71,18 @@ namespace Conveyor
             return std::tuple_size<ActionsTuple>::value;
         }
 
+        template<std::size_t Index>
+        constexpr typename std::tuple_element<Index, ActionsTuple>::type at() const
+        {
+            return std::get<Index>(m_actions);
+        }
+
+        template<std::size_t Index>
+        constexpr typename std::tuple_element<Index, ActionsTuple>::type& at()
+        {
+            return std::get<Index>(m_actions);
+        }
+
     private:
 
         template<int Index, typename FirstArgument, typename PreviousArgument>

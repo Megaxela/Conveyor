@@ -34,11 +34,15 @@ public:
     CopyMoveCounter& operator=(const CopyMoveCounter& rhs)
     {
         ++copies;
+
+        return (*this);
     }
 
     CopyMoveCounter& operator=(const CopyMoveCounter&& rhs) noexcept
     {
         ++copies;
+
+        return (*this);
     }
 
 };
