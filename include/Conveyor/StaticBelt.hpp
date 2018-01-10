@@ -73,9 +73,9 @@ namespace Conveyor
             std::tuple_size<ActionsTuple>::value - 1,
             ActionsTuple,
             FirstArg
-        >::type execute(const FirstArg& argument)
+        >::type execute(FirstArg argument)
         {
-            return exec<FirstArg>(m_actions, argument);
+            return exec<FirstArg>(m_actions, std::move(argument));
         }
 
         constexpr std::size_t numberOfOperators() const
@@ -106,7 +106,7 @@ namespace Conveyor
                 std::tuple_size<ActionsTuple>::value - 1,
                 ActionsTuple,
                 FirstArgument
-            >::type operator() (ActionsTuple& t, const PreviousArgument& arg)
+            >::type operator() (ActionsTuple& t, PreviousArgument arg)
             {
                 return exec_tuple<
                     Index + 1,
@@ -116,7 +116,7 @@ namespace Conveyor
                     >::type
                 >{}(
                     t,
-                    std::get<Index>(t).execute(arg)
+                    std::get<Index>(t).execute(std::move(arg))
                 );
             }
         };
@@ -132,9 +132,9 @@ namespace Conveyor
                 std::tuple_size<ActionsTuple>::value - 1,
                 ActionsTuple,
                 FirstArgument
-            >::type  operator()(ActionsTuple& t, const PreviousArgument& arg)
+            >::type  operator()(ActionsTuple& t, PreviousArgument arg)
             {
-                return std::get<std::tuple_size<ActionsTuple>::value - 1>(t).execute(arg);
+                return std::get<std::tuple_size<ActionsTuple>::value - 1>(t).execute(std::move(arg));
             }
         };
 
@@ -143,9 +143,9 @@ namespace Conveyor
             std::tuple_size<ActionsTuple>::value - 1,
             ActionsTuple,
             FirstArgument
-        >::type exec(ActionsTuple& a, const FirstArgument& argument)
+        >::type exec(ActionsTuple& a, FirstArgument argument)
         {
-            return exec_tuple<0, FirstArgument, FirstArgument>{}(a, argument);
+            return exec_tuple<0, FirstArgument, FirstArgument>{}(a, std::move(argument));
         }
 
         ActionsTuple m_actions;
