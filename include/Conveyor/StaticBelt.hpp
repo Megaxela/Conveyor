@@ -57,17 +57,24 @@ namespace Conveyor
     public:
 
         template<typename... ConstructorArgs>
-        StaticBelt(ConstructorArgs&&... args) :
-            m_actions(std::make_tuple(args...))
+        explicit StaticBelt(ConstructorArgs&&... args) :
+            m_actions(std::make_tuple(std::forward<ConstructorArgs>(args)...))
         {
 
         }
 
-        StaticBelt<>()
-        {
+        /**
+         * @brief Default.
+         */
+        StaticBelt<>() = default;
 
-        }
-
+        /**
+         * @brief Main execution method.
+         * @tparam FirstArg First argument type.
+         * @param argument First argument value. Passing by value,
+         * to allow user to use std::move to pass argument.
+         * @return Last belt executor result.
+         */
         template<typename FirstArg>
         typename LastElementType<
             std::tuple_size<ActionsTuple>::value - 1,
@@ -75,20 +82,36 @@ namespace Conveyor
             FirstArg
         >::type execute(FirstArg argument)
         {
-            return exec<FirstArg>(m_actions, std::move(argument));
+            return exec_tuple<0, FirstArg, FirstArg>{}(m_actions, std::move(argument));
         }
 
+        /**
+         * @brief Method for getting number of
+         * operators.
+         * @return Number of operators in belt.
+         */
         constexpr std::size_t numberOfOperators() const
         {
             return std::tuple_size<ActionsTuple>::value;
         }
 
+        /**
+         * @brief Constant method for getting operator
+         * by index.
+         * @tparam Index Template index value.
+         * @return Operator.
+         */
         template<std::size_t Index>
         constexpr typename std::tuple_element<Index, ActionsTuple>::type at() const
         {
             return std::get<Index>(m_actions);
         }
 
+        /**
+         * @brief Method for getting operator by index.
+         * @tparam Index Template index value.
+         * @return Operator.
+         */
         template<std::size_t Index>
         constexpr typename std::tuple_element<Index, ActionsTuple>::type& at()
         {
@@ -97,6 +120,13 @@ namespace Conveyor
 
     private:
 
+        /**
+         * @brief Structure for iterating through
+         * tuple to execute operators.
+         * @tparam Index Current operator index.
+         * @tparam FirstArgument First argument type.
+         * @tparam PreviousArgument Previous argument type.
+         */
         template<int Index, typename FirstArgument, typename PreviousArgument>
         struct exec_tuple
         {
@@ -121,6 +151,12 @@ namespace Conveyor
             }
         };
 
+        /**
+         * @brief Structure for iterating last
+         * tuple to execute operators.
+         * @tparam FirstArgument First argument type.
+         * @tparam PreviousArgument Previous argument type.
+         */
         template<typename FirstArgument, typename PreviousArgument>
         struct exec_tuple<
             std::tuple_size<ActionsTuple>::value - 1,
@@ -137,16 +173,6 @@ namespace Conveyor
                 return std::get<std::tuple_size<ActionsTuple>::value - 1>(t).execute(std::move(arg));
             }
         };
-
-        template<typename FirstArgument>
-        typename LastElementType<
-            std::tuple_size<ActionsTuple>::value - 1,
-            ActionsTuple,
-            FirstArgument
-        >::type exec(ActionsTuple& a, FirstArgument argument)
-        {
-            return exec_tuple<0, FirstArgument, FirstArgument>{}(a, std::move(argument));
-        }
 
         ActionsTuple m_actions;
     };

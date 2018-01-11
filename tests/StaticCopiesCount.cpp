@@ -11,6 +11,11 @@ static int moves = 0;
 class CopyMoveCounter
 {
 public:
+    explicit CopyMoveCounter(int i)
+    {
+        ++constructed;
+    }
+
     CopyMoveCounter()
     {
         ++constructed;
@@ -21,7 +26,7 @@ public:
         ++destructed;
     }
 
-    CopyMoveCounter(const CopyMoveCounter&& rhs) noexcept
+    CopyMoveCounter(CopyMoveCounter&& rhs) noexcept
     {
         ++moves;
     }
@@ -38,11 +43,16 @@ public:
         return (*this);
     }
 
-    CopyMoveCounter& operator=(const CopyMoveCounter&& rhs) noexcept
+    CopyMoveCounter& operator=(CopyMoveCounter&& rhs) noexcept
     {
-        ++copies;
+        ++moves;
 
         return (*this);
+    }
+
+    int execute(int x)
+    {
+        return x;
     }
 
 };
@@ -51,28 +61,33 @@ template<typename T>
 class PlaceholderOperator
 {
 public:
-    T execute(const T& arg)
+    T execute(T arg)
     {
-        return std::move(arg);
+        return arg;
     }
 };
 
-TEST(StaticConveyor, CopiesMovesCount)
-{
-    Conveyor::StaticBelt<
-        PlaceholderOperator<CopyMoveCounter>,
-        PlaceholderOperator<CopyMoveCounter>,
-        PlaceholderOperator<CopyMoveCounter>,
-        PlaceholderOperator<CopyMoveCounter>,
-        PlaceholderOperator<CopyMoveCounter>,
-        PlaceholderOperator<CopyMoveCounter>,
-        PlaceholderOperator<CopyMoveCounter>,
-        PlaceholderOperator<CopyMoveCounter>,
-        PlaceholderOperator<CopyMoveCounter>,
-        PlaceholderOperator<CopyMoveCounter>
-    > belt;
 
-    belt.execute(CopyMoveCounter());
+template<int Count, typename Operator, typename... Operators>
+struct Creator
+{
+    using type = typename Creator<Count - 1, Operator, Operators..., Operator>::type;
+};
+
+template<typename Operator, typename... Operators>
+struct Creator<0, Operator, Operators...>
+{
+    using type = Conveyor::StaticBelt<Operators...>;
+};
+
+TEST(StaticConveyor, ConstructorOperatorCopyMoveCount)
+{
+    constructed = 0;
+    destructed = 0;
+    copies = 0;
+    moves = 0;
+
+    Creator<4, CopyMoveCounter>::type belt(1, 2, 3, 4);
 
     TestCout() << " Number of operators: " << belt.numberOfOperators();
     TestCout() << " Constructed: " << constructed;
@@ -80,11 +95,75 @@ TEST(StaticConveyor, CopiesMovesCount)
     TestCout() << " Moves      : " << moves;
     TestCout() << " Copies     : " << copies;
 
+    ASSERT_EQ(constructed, belt.numberOfOperators());
+    ASSERT_EQ(destructed,  0);
+    ASSERT_EQ(moves,       0);
+    ASSERT_EQ(copies,      0);
+}
+
+TEST(StaticConveyor, DefaultConstructorOperatorCopyMoveCount)
+{
+    constructed = 0;
+    destructed = 0;
+    copies = 0;
+    moves = 0;
+
+    Creator<4, CopyMoveCounter>::type belt;
+
+    TestCout() << " Number of operators: " << belt.numberOfOperators();
+    TestCout() << " Constructed: " << constructed;
+    TestCout() << " Destructed : " << destructed;
+    TestCout() << " Moves      : " << moves;
+    TestCout() << " Copies     : " << copies;
+}
+
+TEST(StaticConveyor, NoArgsOperatorCopyMoveCount)
+{
+    constructed = 0;
+    destructed = 0;
+    copies = 0;
+    moves = 0;
+
+    auto belt = Creator<4, CopyMoveCounter>::type(
+        CopyMoveCounter(),
+        CopyMoveCounter(),
+        CopyMoveCounter(),
+        CopyMoveCounter()
+    );
+
+    TestCout() << " Number of operators: " << belt.numberOfOperators();
+    TestCout() << " Constructed: " << constructed;
+    TestCout() << " Destructed : " << destructed;
+    TestCout() << " Moves      : " << moves;
+    TestCout() << " Copies     : " << copies;
+}
+
+TEST(StaticConveyor, ArgumentCopiesMovesCount)
+{
+    constructed = 0;
+    destructed = 0;
+    copies = 0;
+    moves = 0;
+
+    Creator<128, PlaceholderOperator<CopyMoveCounter>>::type belt;
+
+    auto copy = CopyMoveCounter();
+
+    belt.execute(std::move(copy));
+
+    TestCout() << " Number of operators    : " << belt.numberOfOperators();
+    TestCout() << " Constructed            : " << constructed;
+    TestCout() << " Destructed (no * 2 + 2): " << destructed;
+    TestCout() << " Moves      (no * 2 + 2): " << moves;
+    TestCout() << " Copies                 : " << copies;
+
     ASSERT_EQ(constructed, 1);
-    ASSERT_EQ(moves, belt.numberOfOperators());
+    ASSERT_EQ(destructed, belt.numberOfOperators() * 2 + 2);
+    ASSERT_EQ(moves, belt.numberOfOperators() * 2 + 2);
     ASSERT_EQ(copies, 0);
 
     constructed = 0;
     moves = 0;
     copies = 0;
+    destructed = 0;
 }
