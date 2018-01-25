@@ -19,6 +19,16 @@ namespace Conveyor
     class StaticBelt
     {
 
+        /**
+         * @brief Structure for identifying
+         * last operator return type.
+         * It's deducing type from end to begin.
+         * So if deducing fails, operators types are not
+         * match.
+         * @tparam Index Current operator index.
+         * @tparam TupleType Tuple with operators.
+         * @tparam FirstArgument First operator argument (for recursion finish).
+         */
         template<int Index, typename TupleType, typename FirstArgument>
         struct LastElementType
         {
@@ -56,6 +66,12 @@ namespace Conveyor
 
     public:
 
+        /**
+         * @brief Constructor for operators, that's
+         * not default constructable.
+         * @tparam ConstructorArgs
+         * @param args Operator constructors arguments.
+         */
         template<typename... ConstructorArgs>
         explicit StaticBelt(ConstructorArgs&&... args) :
             m_actions(std::make_tuple(std::forward<ConstructorArgs>(args)...))

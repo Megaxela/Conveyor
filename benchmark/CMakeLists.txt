@@ -7,11 +7,6 @@ set(CMAKE_CXX_FLAGS
         "-ftemplate-depth=1500 -O3"
 )
 
-include_directories(
-        ../include
-        benchmark/include
-)
-
 set(BENCHMARK_ENABLE_TESTING Off)
 
 add_subdirectory(benchmark)

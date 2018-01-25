@@ -6,15 +6,16 @@ option(CONVEYOR_BUILD_BENCHMARK "Build benchmarks" On)
 
 set(CMAKE_CXX_STANDARD 17)
 
-include_directories(include)
+if (${CONVEYOR_BUILD_BENCHMARK})
+    add_subdirectory(benchmark)
+    set(CONVEYOR_BUILD_TESTS On)
+endif()
+
 
 if (${CONVEYOR_BUILD_TESTS})
     add_subdirectory(tests)
 endif()
 
-if (${CONVEYOR_BUILD_BENCHMARK})
-    add_subdirectory(benchmark)
-endif()
 
 add_library(Conveyor STATIC
     include/Conveyor/Belt.hpp
@@ -24,4 +25,8 @@ add_library(Conveyor STATIC
 
     src/Conveyor/Belt.cpp
     src/Conveyor/FuncOperator.cpp
+)
+
+target_include_directories(Conveyor PUBLIC
+    include
 )
