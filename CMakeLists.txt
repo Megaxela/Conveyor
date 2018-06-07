@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
 project(Conveyor)
 
-option(CONVEYOR_BUILD_TESTS "Build tests" On)
-option(CONVEYOR_BUILD_BENCHMARK "Build benchmarks" On)
+option(CONVEYOR_BUILD_TESTS "Build tests" Off)
+option(CONVEYOR_BUILD_BENCHMARK "Build benchmarks" Off)
 
 set(CMAKE_CXX_STANDARD 17)
 
