@@ -1,7 +1,3 @@
-//
-// Created by megaxela on 1/11/18.
-//
-
 #pragma once
 
 #include <benchmark/benchmark.h>

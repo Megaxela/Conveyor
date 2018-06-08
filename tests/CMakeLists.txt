@@ -11,7 +11,11 @@ include_directories(../include)
 add_executable(ConveyorTests
         main.cpp
         RealTimeConveyor.cpp
-        StaticConveyor.cpp StaticCopiesCount.cpp TestingExtend.hpp)
+        StaticConveyor.cpp
+        StaticCopiesCount.cpp
+        TestingExtend.hpp
+        MultiplexConveyor.cpp
+)
 
 target_link_libraries(ConveyorTests
         Conveyor

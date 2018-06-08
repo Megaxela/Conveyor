@@ -14,7 +14,6 @@ add_subdirectory(benchmark)
 add_executable(ConveyorBenchmark
         main.cpp
         bench_extend/BenchmarkingExtend.hpp
-        bench_extend/TemplateFunctionBenchmark.cpp
         bench_extend/TemplateFunctionBenchmark.hpp
 )
 

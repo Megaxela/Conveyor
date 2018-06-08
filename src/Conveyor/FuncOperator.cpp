@@ -1,7 +1,3 @@
-//
-// Created by megaxela on 12/1/17.
-//
-
 #include <utility>
 
 #include "Conveyor/FuncOperator.hpp"

@@ -90,9 +90,12 @@ public:
 
 int main(int argc, char** argv)
 {
+    // Ability to make embedded belts
     Conveyor::StaticBelt<
-        AddOperator,
-        AddOperator,
+        Conveyor::StaticBelt<
+            AddOperator,
+            AddOperator,
+        >,
         ToStringOperator
     > belt;
 
@@ -105,6 +108,72 @@ int main(int argc, char** argv)
 
     return 0;
 }
+```
+
+**Usage of multiplex static Belt**
+```cpp
+#include <Conveyor/StaticMultiplexBelt.hpp>
+
+class MultiplexAddOperator
+{
+public:
+    template<int N>
+    int executeForward(int arg)
+    {
+        return arg + N;
+    }
+    
+    template<int N>
+    int executeBackward(int arg)
+    {
+        return arg - N;
+    }
+};
+
+class MultiplexToStringOperator
+{
+public:
+    template<int>
+    std::string executeForward(int arg)
+    {
+        return std::to_string(arg);
+    }
+    
+    // Forward and backward execution are splitted,
+    // so, arguments and return type can differ from 
+    // forward.
+    template<int>
+    int executeBackward(std::string arg)
+    {
+        return std::stoi(arg);
+    }
+};
+
+int main()
+{
+    // You can use embedded belts
+    Conveyor::StaticMultiplexBelt<
+        Conveyor::StaticMultiplexBelt<
+            MultiplexAddOperator,
+            MultiplexAddOperator,
+            MultiplexAddOperator
+        >,
+        MultiplexToStringOperator
+    > multiplexBelt;
+    
+    std::string result = multiplexBelt.executeForward<2>(2);
+    
+    // "8" will be returned
+    std::cout << result << std::endl;
+    
+    int backResult = multiplexBelt.executeBackward<2>(result);
+    
+    // "2" will be returned
+    std::cout << backResult << std::endl;
+    
+    return 0;
+}
+
 ```
 
 ## LICENSE

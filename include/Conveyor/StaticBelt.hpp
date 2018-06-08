@@ -1,12 +1,9 @@
-//
-// Created by megaxela on 12/19/17.
-//
-
 #pragma once
 
 #include <type_traits>
 #include <tuple>
 #include <functional>
+#include <utility>
 
 namespace Conveyor
 {
@@ -19,6 +16,8 @@ namespace Conveyor
     class StaticBelt
     {
 
+        using ActionsTuple = std::tuple<T...>;
+
         /**
          * @brief Structure for identifying
          * last operator return type.
@@ -29,40 +28,32 @@ namespace Conveyor
          * @tparam TupleType Tuple with operators.
          * @tparam FirstArgument First operator argument (for recursion finish).
          */
-        template<int Index, typename TupleType, typename FirstArgument>
+        template<int Index, typename FirstArgument>
         struct LastElementType
         {
-            using element_type = typename std::tuple_element<Index, TupleType>::type;
+            using element_type = typename std::tuple_element<Index, ActionsTuple>::type;
 
-            using type = typename std::result_of<
-                decltype(&element_type::execute)(
-                    element_type,
-                    typename LastElementType<Index - 1, TupleType, FirstArgument>::type
+            using type = decltype(
+                std::declval<element_type>().execute(
+                    std::declval<typename LastElementType<
+                        Index - 1,
+                        FirstArgument
+                    >::type>()
                 )
-            >::type;
+            );
         };
 
-        template<typename TupleType, typename FirstArgument>
-        struct LastElementType<0, TupleType, FirstArgument>
+        template<typename FirstArgument>
+        struct LastElementType<0, FirstArgument>
         {
-            using element_type = typename std::tuple_element<0, TupleType>::type;
+            using element_type = typename std::tuple_element<0, ActionsTuple>::type;
 
-            using type = typename std::result_of<
-                decltype(&element_type::execute)(element_type, FirstArgument)
-            >::type;
+            using type = decltype(
+                std::declval<element_type>().execute(
+                    std::declval<FirstArgument>()
+                )
+            );
         };
-
-        using ActionsTuple = std::tuple<T...>;
-
-        using LastAction = typename std::tuple_element< // Getting last tuple element
-            std::tuple_size<ActionsTuple>::value - 1,
-            ActionsTuple
-        >::type;
-
-        using FirstAction = typename std::tuple_element<
-            0,
-            ActionsTuple
-        >::type;
 
     public:
 
@@ -94,7 +85,6 @@ namespace Conveyor
         template<typename FirstArg>
         typename LastElementType<
             std::tuple_size<ActionsTuple>::value - 1,
-            ActionsTuple,
             FirstArg
         >::type execute(FirstArg argument)
         {
@@ -150,16 +140,17 @@ namespace Conveyor
 
             typename LastElementType<
                 std::tuple_size<ActionsTuple>::value - 1,
-                ActionsTuple,
                 FirstArgument
             >::type operator() (ActionsTuple& t, PreviousArgument arg)
             {
                 return exec_tuple<
                     Index + 1,
                     FirstArgument,
-                    typename std::result_of<
-                        decltype(&CurrentElementType::execute)(CurrentElementType, PreviousArgument)
-                    >::type
+                    decltype(
+                        std::declval<CurrentElementType>().execute(
+                            std::declval<PreviousArgument>()
+                        )
+                    )
                 >{}(
                     t,
                     std::get<Index>(t).execute(std::move(arg))
@@ -182,7 +173,6 @@ namespace Conveyor
         {
             typename LastElementType<
                 std::tuple_size<ActionsTuple>::value - 1,
-                ActionsTuple,
                 FirstArgument
             >::type  operator()(ActionsTuple& t, PreviousArgument arg)
             {

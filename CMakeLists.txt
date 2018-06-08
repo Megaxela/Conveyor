@@ -19,6 +19,7 @@ add_library(Conveyor STATIC
     include/Conveyor/FuncOperator.hpp
     include/Conveyor/Operator.hpp
     include/Conveyor/StaticBelt.hpp
+    include/Conveyor/StaticMultiplexBelt.hpp
 
     src/Conveyor/Belt.cpp
     src/Conveyor/FuncOperator.cpp

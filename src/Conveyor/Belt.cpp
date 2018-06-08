@@ -1,7 +1,3 @@
-//
-// Created by megaxela on 12/1/17.
-//
-
 #include <algorithm>
 #include "Conveyor/Belt.hpp"
 

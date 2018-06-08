@@ -34,6 +34,26 @@ public:
     }
 };
 
+class TestStaticMultiplexOperator
+{
+public:
+    template<int N>
+    InternalType executeForward(const InternalType& arg)
+    {
+        auto answer = (arg + ADDABLE);
+        benchmark::DoNotOptimize(answer);
+        return answer;
+    }
+
+    template<int N>
+    InternalType executeBackward(const InternalType& arg)
+    {
+        auto answer = (arg - ADDABLE);
+        benchmark::DoNotOptimize(answer);
+        return answer;
+    }
+};
+
 static void FunctionalCreationSpeed(benchmark::State& state)
 {
     for (auto _ : state)
